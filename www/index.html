@@ -6,6 +6,8 @@
     <title></title>
 
     <link rel="manifest" href="manifest.json">
+    <!-- Leaflet CSS file -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.0.2/dist/leaflet.css" />
 
     <!-- un-comment this code to enable service worker
     <script>
@@ -33,6 +35,10 @@
     <!-- cordova script (this will be a 404 during development) -->
     <script src="cordova.js"></script>
 
+
+    <!-- Leaflet js file -->
+    <script src="https://unpkg.com/leaflet@1.0.2/dist/leaflet.js"></script>
+
     <!-- your app's js -->
     <script src="js/application.js"></script>
   </head>
@@ -42,8 +48,10 @@
       <ion-header-bar class="bar-stable">
         <h1 class="title">Hello, Ionic!</h1>
       </ion-header-bar>
-      <ion-content>
-        {{ pos }}
+      <ion-content class='has-header' scrollable="false" locking='true'`>
+        <div id='mapid' style='width: 100%; height: 100vh;'>
+          map's div here...
+        </div>
       </ion-content>
     </ion-pane>
   </body>

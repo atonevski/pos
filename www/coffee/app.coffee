@@ -19,22 +19,42 @@ angular.module('app', ['ionic', 'ngCordova'])
     if window.StatusBar
       StatusBar.styleDefault()
 
-.controller 'Main', ($scope, $cordovaGeolocation, $ionicPlatform) ->
+.controller 'Main', ($scope, $cordovaGeolocation, $ionicPlatform, $ionicScrollDelegate) ->
+
+  $scope.map = L.map('mapid').fitWorld()
+  L.tileLayer 'https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token=pk.eyJ1IjoiYXRvbmV2c2tpIiwiYSI6ImNpdzBndWY0azAwMXoyb3BqYXU2NDhoajEifQ.ESeiramSy2FmzU_XyIT6IQ', {
+    # attribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="http://mapbox.com">Mapbox</a>'
+    maxZoom: 18
+    id: 'mapbox.streets'
+  }
+  .addTo $scope.map
+
+  $scope.map.on 'locationerror', (e) -> console.log "Leaflet loc err: ", e
+
+  $scope.map.locate { setView: yes, maxZoom: 16 }
+
+  # red color: '#e85142'
+  redIcon = new L.Icon { iconUrl: 'img/purple-marker-icon.png' }
+  $scope.map.setView [41.993667, 21.4450906], 10
+  L.marker [41.993667, 21.4450906], { icon: redIcon }
+    .bindPopup "This is your loc's <strong>popup</strong>"
+    .addTo $scope.map
+  $ionicScrollDelegate.resize()
+
   $ionicPlatform.ready () ->
     opts =
-      timeout: 1000
+      timeout: 4000
       enableHighAccuracy: no
     $cordovaGeolocation
       .getCurrentPosition opts
       .then (pos) ->
         $scope.pos = pos
-        # $scope.$apply () -> $scope.pos = qq
-        console.log "Current pos: ", pos
+        console.log "Current pos: ", pos.coords.latitude, pos.coords.longitude
       , (err) ->
         console.log "Get current pos err: ", err
     
     # wopts =
-    #   timeout: 3000
+    #   timeout: 60000
     #   enableHighAccuracy: no
     # watch = $cordovaGeolocation.watchPosition wopts
     # watch.then null
@@ -43,3 +63,4 @@ angular.module('app', ['ionic', 'ngCordova'])
     # , (pos) ->
     #   $scope.pos = pos
     #   console.log "Watch position: ", pos
+
