@@ -8,8 +8,8 @@ angular.module('app', ['ionic', 'ngCordova']).run(function($ionicPlatform) {
       return StatusBar.styleDefault();
     }
   });
-}).controller('Main', function($scope, $cordovaGeolocation, $ionicPlatform, $ionicScrollDelegate) {
-  var redIcon;
+}).controller('Main', function($scope, $cordovaGeolocation, $ionicPlatform, $ionicScrollDelegate, $ionicPosition, $window) {
+  var el, offset, redIcon;
   $scope.map = L.map('mapid').fitWorld();
   L.tileLayer('https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token=pk.eyJ1IjoiYXRvbmV2c2tpIiwiYSI6ImNpdzBndWY0azAwMXoyb3BqYXU2NDhoajEifQ.ESeiramSy2FmzU_XyIT6IQ', {
     maxZoom: 18,
@@ -29,8 +29,7 @@ angular.module('app', ['ionic', 'ngCordova']).run(function($ionicPlatform) {
   L.marker([41.993667, 21.4450906], {
     icon: redIcon
   }).bindPopup("This is your loc's <strong>popup</strong>").addTo($scope.map);
-  $ionicScrollDelegate.resize();
-  return $ionicPlatform.ready(function() {
+  $ionicPlatform.ready(function() {
     var opts;
     opts = {
       timeout: 4000,
@@ -42,5 +41,18 @@ angular.module('app', ['ionic', 'ngCordova']).run(function($ionicPlatform) {
     }, function(err) {
       return console.log("Get current pos err: ", err);
     });
+  });
+  el = angular.element(document.querySelector('#mapid'));
+  offset = $ionicPosition.offset(el);
+  console.log('mapid offset (top, left): ', offset.top, offset.left);
+  console.log("WxH: " + window.innerWidth + "x" + window.innerHeight);
+  el[0].style.height = window.innerHeight - offset.top + 'px';
+  $scope.$on('$rootScope.orientation.change', function() {
+    return console.log('Device orientation changed!!!');
+  });
+  return angular.element($window).bind('resize', function() {
+    console.log('Window size changed: ', $window.innerWidth + "x" + $window.innerHeight);
+    document.getElementById("mapid").style.height = window.innerHeight - offset.top + 'px';
+    return $scope.map.setView([41.993667, 21.4450906], 10);
   });
 });

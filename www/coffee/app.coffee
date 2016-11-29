@@ -19,7 +19,8 @@ angular.module('app', ['ionic', 'ngCordova'])
     if window.StatusBar
       StatusBar.styleDefault()
 
-.controller 'Main', ($scope, $cordovaGeolocation, $ionicPlatform, $ionicScrollDelegate) ->
+.controller 'Main', ($scope, $cordovaGeolocation, $ionicPlatform
+, $ionicScrollDelegate, $ionicPosition, $window) ->
 
   $scope.map = L.map('mapid').fitWorld()
   L.tileLayer 'https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token=pk.eyJ1IjoiYXRvbmV2c2tpIiwiYSI6ImNpdzBndWY0azAwMXoyb3BqYXU2NDhoajEifQ.ESeiramSy2FmzU_XyIT6IQ', {
@@ -39,7 +40,7 @@ angular.module('app', ['ionic', 'ngCordova'])
   L.marker [41.993667, 21.4450906], { icon: redIcon }
     .bindPopup "This is your loc's <strong>popup</strong>"
     .addTo $scope.map
-  $ionicScrollDelegate.resize()
+  # $ionicScrollDelegate.resize()
 
   $ionicPlatform.ready () ->
     opts =
@@ -63,4 +64,32 @@ angular.module('app', ['ionic', 'ngCordova'])
     # , (pos) ->
     #   $scope.pos = pos
     #   console.log "Watch position: ", pos
+  
+  el      = angular.element document.querySelector '#mapid'
+  offset  = $ionicPosition.offset el
+  console.log 'mapid offset (top, left): ', offset.top, offset.left
 
+  console.log "WxH: #{ window.innerWidth }x#{ window.innerHeight }"
+
+  # setting map's height
+  el[0].style.height = window.innerHeight - offset.top + 'px'
+  
+  # or alternativelly:
+  # document
+  #   .getElementById("mapid")
+  #   .style.height = window.innerHeight - offset.top + 'px'
+  #
+ 
+  # here is orientation change detection
+  $scope.$on '$rootScope.orientation.change', () ->
+    console.log 'Device orientation changed!!!'
+
+  # detect window size change
+  angular
+    .element $window
+    .bind 'resize', () ->
+      console.log 'Window size changed: ', "#{ $window.innerWidth }x#{ $window.innerHeight }"
+      document
+        .getElementById("mapid")
+        .style.height = window.innerHeight - offset.top + 'px'
+      $scope.map.setView [41.993667, 21.4450906], 10
