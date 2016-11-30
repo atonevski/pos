@@ -8,8 +8,8 @@ angular.module('app', ['ionic', 'ngCordova']).run(function($ionicPlatform) {
       return StatusBar.styleDefault();
     }
   });
-}).controller('Main', function($scope, $cordovaGeolocation, $ionicPlatform, $ionicScrollDelegate, $ionicPosition, $window) {
-  var el, offset, redIcon;
+}).controller('Main', function($scope, $cordovaGeolocation, $ionicPlatform, $ionicScrollDelegate, $ionicPosition, $window, $http) {
+  var el, greenIcon, offset, redIcon;
   $scope.map = L.map('mapid').fitWorld();
   L.tileLayer('https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token=pk.eyJ1IjoiYXRvbmV2c2tpIiwiYSI6ImNpdzBndWY0azAwMXoyb3BqYXU2NDhoajEifQ.ESeiramSy2FmzU_XyIT6IQ', {
     maxZoom: 18,
@@ -18,25 +18,25 @@ angular.module('app', ['ionic', 'ngCordova']).run(function($ionicPlatform) {
   $scope.map.on('locationerror', function(e) {
     return console.log("Leaflet loc err: ", e);
   });
+  $scope.map.setView([41.993667, 21.4450906], 10);
   $scope.map.locate({
     setView: true,
     maxZoom: 16
   });
   redIcon = new L.Icon({
-    iconUrl: 'img/purple-marker-icon.png'
+    iconUrl: 'img/red-marker-icon.png'
   });
-  $scope.map.setView([41.993667, 21.4450906], 10);
-  L.marker([41.993667, 21.4450906], {
-    icon: redIcon
-  }).bindPopup("This is your loc's <strong>popup</strong>").addTo($scope.map);
+  greenIcon = new L.Icon({
+    iconUrl: 'img/green-marker-icon.png'
+  });
   $ionicPlatform.ready(function() {
     var opts;
     opts = {
-      timeout: 4000,
+      timeout: 8000,
       enableHighAccuracy: false
     };
     return $cordovaGeolocation.getCurrentPosition(opts).then(function(pos) {
-      $scope.pos = pos;
+      $scope.position = pos;
       return console.log("Current pos: ", pos.coords.latitude, pos.coords.longitude);
     }, function(err) {
       return console.log("Get current pos err: ", err);
@@ -50,9 +50,41 @@ angular.module('app', ['ionic', 'ngCordova']).run(function($ionicPlatform) {
   $scope.$on('$rootScope.orientation.change', function() {
     return console.log('Device orientation changed!!!');
   });
-  return angular.element($window).bind('resize', function() {
+  angular.element($window).bind('resize', function() {
     console.log('Window size changed: ', $window.innerWidth + "x" + $window.innerHeight);
     document.getElementById("mapid").style.height = window.innerHeight - offset.top + 'px';
-    return $scope.map.setView([41.993667, 21.4450906], 10);
+    return $scope.map.setView([41.993667, 21.4450906], 15);
+  });
+  $http.get('data/pos.json').then(function(response) {
+    return $scope.poses = response.data;
+  }, function(response) {
+    return console.log("pos.json error: (" + response.status + ") " + response.data + " " + response.statusText);
+  });
+  $scope.$watch('position', function(n, o) {
+    if (n == null) {
+      return;
+    }
+    if ($scope.positionMarker != null) {
+      $scope.map.removeLayer($scope.positionMarker);
+    }
+    return $scope.positionMarker = L.marker([$scope.position.coords.latitude, $scope.position.coords.longitude], {
+      icon: redIcon
+    }).bindPopup("This is your current position").addTo($scope.map);
+  });
+  return $scope.$watch('poses', function(n, o) {
+    var i, len, pos, ref, results;
+    if (n == null) {
+      return;
+    }
+    console.log("We have " + $scope.poses.length + " poses to add");
+    ref = $scope.poses;
+    results = [];
+    for (i = 0, len = ref.length; i < len; i++) {
+      pos = ref[i];
+      results.push(L.marker([pos.latitude, pos.longitude], {
+        icon: greenIcon
+      }).bindPopup("<strong>" + pos.name + "</strong> (" + pos.id + ")<br />\n<address>\n  address: " + pos.address + " <br />\n  telephone: " + pos.telephone + " <br />\n</address>").addTo($scope.map));
+    }
+    return results;
   });
 });

@@ -20,7 +20,7 @@ angular.module('app', ['ionic', 'ngCordova'])
       StatusBar.styleDefault()
 
 .controller 'Main', ($scope, $cordovaGeolocation, $ionicPlatform
-, $ionicScrollDelegate, $ionicPosition, $window) ->
+, $ionicScrollDelegate, $ionicPosition, $window, $http) ->
 
   $scope.map = L.map('mapid').fitWorld()
   L.tileLayer 'https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token=pk.eyJ1IjoiYXRvbmV2c2tpIiwiYSI6ImNpdzBndWY0azAwMXoyb3BqYXU2NDhoajEifQ.ESeiramSy2FmzU_XyIT6IQ', {
@@ -32,24 +32,23 @@ angular.module('app', ['ionic', 'ngCordova'])
 
   $scope.map.on 'locationerror', (e) -> console.log "Leaflet loc err: ", e
 
+  $scope.map.setView [41.993667, 21.4450906], 10
   $scope.map.locate { setView: yes, maxZoom: 16 }
 
-  # red color: '#e85142'
-  redIcon = new L.Icon { iconUrl: 'img/purple-marker-icon.png' }
-  $scope.map.setView [41.993667, 21.4450906], 10
-  L.marker [41.993667, 21.4450906], { icon: redIcon }
-    .bindPopup "This is your loc's <strong>popup</strong>"
-    .addTo $scope.map
-  # $ionicScrollDelegate.resize()
+  redIcon   = new L.Icon { iconUrl: 'img/red-marker-icon.png' }
+  greenIcon = new L.Icon { iconUrl: 'img/green-marker-icon.png' }
+  # L.marker [41.993667, 21.4450906], { icon: redIcon }
+  #   .bindPopup "This is your loc's <strong>popup</strong>"
+  #   .addTo $scope.map
 
   $ionicPlatform.ready () ->
     opts =
-      timeout: 4000
+      timeout: 8000
       enableHighAccuracy: no
     $cordovaGeolocation
       .getCurrentPosition opts
       .then (pos) ->
-        $scope.pos = pos
+        $scope.position = pos
         console.log "Current pos: ", pos.coords.latitude, pos.coords.longitude
       , (err) ->
         console.log "Get current pos err: ", err
@@ -92,4 +91,41 @@ angular.module('app', ['ionic', 'ngCordova'])
       document
         .getElementById("mapid")
         .style.height = window.innerHeight - offset.top + 'px'
-      $scope.map.setView [41.993667, 21.4450906], 10
+      $scope.map.setView [41.993667, 21.4450906], 15
+
+  # read all poses
+  $http.get 'data/pos.json'
+    .then (response) -> # success
+      $scope.poses = response.data
+    , (response) -> # error
+      console.log "pos.json error: (#{ response.status }) #{ response.data } #{ response.statusText }"
+
+  # watch pos change
+  $scope.$watch 'position', (n, o) ->
+    return unless n?
+    if $scope.positionMarker?
+      $scope.map.removeLayer $scope.positionMarker
+    $scope.positionMarker =   L.marker [
+        $scope.position.coords.latitude,
+        $scope.position.coords.longitude,
+      ], { icon: redIcon }
+      .bindPopup "This is your current position"
+      .addTo $scope.map
+      
+  # watch poses change
+  $scope.$watch 'poses', (n, o) ->
+    return unless n?
+    console.log "We have #{ $scope.poses.length } poses to add"
+    for pos in $scope.poses
+      L.marker [
+          pos.latitude,
+          pos.longitude,
+        ], { icon: greenIcon }
+        .bindPopup """
+            <strong>#{ pos.name }</strong> (#{ pos.id })<br />
+            <address>
+              address: #{ pos.address } <br />
+              telephone: #{ pos.telephone } <br />
+            </address>
+          """
+        .addTo $scope.map
