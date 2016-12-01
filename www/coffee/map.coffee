@@ -21,7 +21,7 @@ angular.module 'app.map', []
     41.997346199999996, 21.4279956
 #       $scope.position.coords.latitude,
 #       $scope.position.coords.longitude
-    ], 10
+    ], 15
   $scope.map.locate { setView: yes, maxZoom: 16 }
 
   redIcon   = new L.Icon { iconUrl: 'img/red-marker-icon.png' }

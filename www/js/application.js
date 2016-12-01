@@ -50,7 +50,7 @@ angular.module('app.map', []).controller('MapCurrentPosition', function($scope, 
   $scope.map.on('locationerror', function(e) {
     return console.log("Leaflet loc err: ", e);
   });
-  $scope.map.setView([41.997346199999996, 21.4279956], 10);
+  $scope.map.setView([41.997346199999996, 21.4279956], 15);
   $scope.map.locate({
     setView: true,
     maxZoom: 16
