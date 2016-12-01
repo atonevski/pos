@@ -3,7 +3,17 @@
 # angular.module is a global place for creating, registering and retrieving Angular modules
 # 'starter' is the name of this angular module example (also set in a <body> attribute in index.html)
 # the 2nd parameter is an array of 'requires'
-angular.module('app', ['ionic', 'ngCordova'])
+angular.module('app', ['ionic', 'ngCordova', 'app.map'])
+
+.config ($stateProvider, $urlRouterProvider) ->
+  $stateProvider
+    .state 'root', {
+      url:          '/'
+      templateUrl:  'views/map/current.html'
+      controller:   'MapCurrentPosition'
+    }
+
+  $urlRouterProvider.otherwise '/'
 
 .run ($ionicPlatform) ->
   $ionicPlatform.ready () ->
@@ -20,26 +30,10 @@ angular.module('app', ['ionic', 'ngCordova'])
       StatusBar.styleDefault()
 
 .controller 'Main', ($scope, $cordovaGeolocation, $ionicPlatform
-, $ionicScrollDelegate, $ionicPosition, $window, $http) ->
+, $ionicScrollDelegate, $ionicPosition, $window, $http, $ionicSideMenuDelegate) ->
 
-  $scope.map = L.map('mapid').fitWorld()
-  L.tileLayer 'https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token=pk.eyJ1IjoiYXRvbmV2c2tpIiwiYSI6ImNpdzBndWY0azAwMXoyb3BqYXU2NDhoajEifQ.ESeiramSy2FmzU_XyIT6IQ', {
-    # attribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="http://mapbox.com">Mapbox</a>'
-    maxZoom: 18
-    id: 'mapbox.streets'
-  }
-  .addTo $scope.map
-
-  $scope.map.on 'locationerror', (e) -> console.log "Leaflet loc err: ", e
-
-  $scope.map.setView [41.993667, 21.4450906], 10
-  $scope.map.locate { setView: yes, maxZoom: 16 }
-
-  redIcon   = new L.Icon { iconUrl: 'img/red-marker-icon.png' }
-  greenIcon = new L.Icon { iconUrl: 'img/green-marker-icon.png' }
-  # L.marker [41.993667, 21.4450906], { icon: redIcon }
-  #   .bindPopup "This is your loc's <strong>popup</strong>"
-  #   .addTo $scope.map
+  # side menu
+  $scope.toggleLeft = () -> $ionicSideMenuDelegate.toggleLeft()
 
   $ionicPlatform.ready () ->
     opts =
@@ -64,68 +58,43 @@ angular.module('app', ['ionic', 'ngCordova'])
     #   $scope.pos = pos
     #   console.log "Watch position: ", pos
   
-  el      = angular.element document.querySelector '#mapid'
-  offset  = $ionicPosition.offset el
-  console.log 'mapid offset (top, left): ', offset.top, offset.left
-
-  console.log "WxH: #{ window.innerWidth }x#{ window.innerHeight }"
-
-  # setting map's height
-  el[0].style.height = window.innerHeight - offset.top + 'px'
-  
-  # or alternativelly:
-  # document
-  #   .getElementById("mapid")
-  #   .style.height = window.innerHeight - offset.top + 'px'
-  #
  
-  # here is orientation change detection
-  $scope.$on '$rootScope.orientation.change', () ->
-    console.log 'Device orientation changed!!!'
-
-  # detect window size change
-  angular
-    .element $window
-    .bind 'resize', () ->
-      console.log 'Window size changed: ', "#{ $window.innerWidth }x#{ $window.innerHeight }"
-      document
-        .getElementById("mapid")
-        .style.height = window.innerHeight - offset.top + 'px'
-      $scope.map.setView [41.993667, 21.4450906], 15
 
   # read all poses
   $http.get 'data/pos.json'
     .then (response) -> # success
       $scope.poses = response.data
+      console.log 'Done reading json'
     , (response) -> # error
       console.log "pos.json error: (#{ response.status }) #{ response.data } #{ response.statusText }"
 
-  # watch pos change
-  $scope.$watch 'position', (n, o) ->
-    return unless n?
-    if $scope.positionMarker?
-      $scope.map.removeLayer $scope.positionMarker
-    $scope.positionMarker =   L.marker [
-        $scope.position.coords.latitude,
-        $scope.position.coords.longitude,
-      ], { icon: redIcon }
-      .bindPopup "This is your current position"
-      .addTo $scope.map
-      
-  # watch poses change
-  $scope.$watch 'poses', (n, o) ->
-    return unless n?
-    console.log "We have #{ $scope.poses.length } poses to add"
-    for pos in $scope.poses
-      L.marker [
-          pos.latitude,
-          pos.longitude,
-        ], { icon: greenIcon }
-        .bindPopup """
-            <strong>#{ pos.name }</strong> (#{ pos.id })<br />
-            <address>
-              address: #{ pos.address } <br />
-              telephone: #{ pos.telephone } <br />
-            </address>
-          """
-        .addTo $scope.map
+  # # watch pos change
+  # $scope.$watch 'position', (n, o) ->
+  #   return unless n?
+  #   if $scope.positionMarker?
+  #     $scope.map.removeLayer $scope.positionMarker
+  #   $scope.positionMarker =   L.marker [
+  #       $scope.position.coords.latitude,
+  #       $scope.position.coords.longitude,
+  #     ], { icon: redIcon }
+  #     .bindPopup "This is your current position"
+  #     .addTo $scope.map
+  #     
+  # # watch poses change
+  # $scope.$watch 'poses', (n, o) ->
+  #   return unless n?
+  #   console.log "We have #{ $scope.poses.length } poses to add"
+  #   for pos in $scope.poses
+  #     L.marker [
+  #         pos.latitude,
+  #         pos.longitude,
+  #       ], { icon: greenIcon }
+  #       .bindPopup """
+  #           <strong>#{ pos.name }</strong> (#{ pos.id })<br />
+  #           <address>
+  #             address: #{ pos.address } <br />
+  #             telephone: #{ pos.telephone } <br />
+  #           </address>
+  #         """
+  #       .addTo $scope.map
+

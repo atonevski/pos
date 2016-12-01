@@ -1,1 +1,8 @@
 /* Empty. Add your own CSS if you like */
+.bar-green { 
+  background-color: palegreen!important;
+  margin: 0px!important;
+  padding: : 0px!important;
+  border: 0px;
+}
+.bar-dark-green { background-color: mediumseagreen!important; }
