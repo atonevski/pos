@@ -16,6 +16,11 @@ angular.module('app', ['ionic', 'ngCordova', 'app.map'])
       templateUrl:  'views/map/current.html'
       controller:   'MapCurrentPosition'
     }
+    .state 'cities', {
+      url:          '/cities'
+      templateUrl:  'views/map/cities.html'
+      controller:   'MapCities'
+    }
 
   $urlRouterProvider.otherwise '/'
 
@@ -63,14 +68,21 @@ angular.module('app', ['ionic', 'ngCordova', 'app.map'])
     #   console.log "Watch position: ", pos
   
  
-
   # read all poses
   $http.get 'data/pos.json'
     .then (response) -> # success
       $scope.poses = response.data
-      console.log 'Done reading json'
+      console.log 'Done reading poses.json'
     , (response) -> # error
       console.log "pos.json error: (#{ response.status }) #{ response.data } #{ response.statusText }"
+
+  # read all cities
+  $http.get 'data/cities.json'
+    .then (response) -> # success
+      $scope.cities = response.data
+      console.log 'Done reading citites.json'
+    , (response) -> # error
+      console.log "cities.json error: (#{ response.status }) #{ response.data } #{ response.statusText }"
 
   # # watch pos change
   # $scope.$watch 'position', (n, o) ->

@@ -1,0 +1,16 @@
+<ion-view view-title='The map'>
+  <ion-content class='has-header' scrollable="false" locking='true'`>
+    <label class="item item-input item-select" style='direction: ltr!important'>
+      <div class="input-label">
+          &nbsp;
+      </div>
+      <select class='text-left' ng-model='selectedCity'
+              ng-options='c as c.city for c in cities track by c.city'
+              ng-change='newSelection(selectedCity)'>
+      </select>
+    </label>
+    <div id='mapid' style='width: 100%; height: 100vh;'>
+      map's div here...
+    </div>
+  </ion-content>
+</ion-view>
