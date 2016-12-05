@@ -151,7 +151,9 @@ angular.module 'app.map', []
         $scope.position.coords.latitude,
         $scope.position.coords.longitude,
       ], { icon: redIcon }
-      .bindPopup "This is your current position"
+      .bindPopup """
+          This is your current position<br />
+        """
       .addTo $scope.map
 
   # watch poses change

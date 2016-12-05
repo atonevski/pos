@@ -150,7 +150,7 @@ angular.module('app.map', []).controller('MapCurrentPosition', function($scope, 
     }
     return $scope.positionMarker = L.marker([$scope.position.coords.latitude, $scope.position.coords.longitude], {
       icon: redIcon
-    }).bindPopup("This is your current position").addTo($scope.map);
+    }).bindPopup("This is your current position<br />").addTo($scope.map);
   });
   $scope.$watch('poses', function(n, o) {
     var i, len, pos, ref, results;
