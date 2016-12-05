@@ -110,7 +110,10 @@ angular.module('app.map', []).controller('MapCurrentPosition', function($scope, 
   });
 }).controller('MapCities', function($scope, $rootScope, $window, $ionicScrollDelegate, $ionicPosition) {
   var el, greenIcon, offset, redIcon;
-  $scope.map = L.map('mapid').fitWorld();
+  console.log('Entered MapCities');
+  console.log("$scope.map? = " + ($scope.map != null));
+  $scope.map = L.map('cities-map-id').fitWorld();
+  console.log("$scope.map? = " + ($scope.map != null));
   L.tileLayer('https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token=pk.eyJ1IjoiYXRvbmV2c2tpIiwiYSI6ImNpdzBndWY0azAwMXoyb3BqYXU2NDhoajEifQ.ESeiramSy2FmzU_XyIT6IQ', {
     maxZoom: 18,
     id: 'mapbox.streets'
@@ -129,15 +132,25 @@ angular.module('app.map', []).controller('MapCurrentPosition', function($scope, 
   greenIcon = new L.Icon({
     iconUrl: 'img/green-marker-icon.png'
   });
-  el = angular.element(document.querySelector('#mapid'));
+  el = angular.element(document.querySelector('#cities-map-id'));
   offset = $ionicPosition.offset(el);
-  console.log('mapid offset (top, left): ', offset.top, offset.left);
+  console.log('cities-map-id offset (top, left): ', offset.top, offset.left);
   console.log("WxH: " + window.innerWidth + "x" + window.innerHeight);
   el[0].style.height = window.innerHeight - offset.top + 'px';
   angular.element($window).bind('resize', function() {
     console.log('Window size changed: ', $window.innerWidth + "x" + $window.innerHeight);
-    document.getElementById("mapid").style.height = $window.innerHeight - offset.top + 'px';
-    return $scope.map.setView([$scope.position.coords.latitude, $scope.position.coords.longitude], 15);
+    return document.getElementById("cities-map-id").style.height = $window.innerHeight - offset.top + 'px';
+  });
+  $scope.$watch('position', function(n, o) {
+    if (n == null) {
+      return;
+    }
+    if ($scope.positionMarker != null) {
+      $scope.map.removeLayer($scope.positionMarker);
+    }
+    return $scope.positionMarker = L.marker([$scope.position.coords.latitude, $scope.position.coords.longitude], {
+      icon: redIcon
+    }).bindPopup("This is your current position").addTo($scope.map);
   });
   $scope.$watch('poses', function(n, o) {
     var i, len, pos, ref, results;

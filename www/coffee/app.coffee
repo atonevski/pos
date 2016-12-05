@@ -84,33 +84,3 @@ angular.module('app', ['ionic', 'ngCordova', 'app.map'])
     , (response) -> # error
       console.log "cities.json error: (#{ response.status }) #{ response.data } #{ response.statusText }"
 
-  # # watch pos change
-  # $scope.$watch 'position', (n, o) ->
-  #   return unless n?
-  #   if $scope.positionMarker?
-  #     $scope.map.removeLayer $scope.positionMarker
-  #   $scope.positionMarker =   L.marker [
-  #       $scope.position.coords.latitude,
-  #       $scope.position.coords.longitude,
-  #     ], { icon: redIcon }
-  #     .bindPopup "This is your current position"
-  #     .addTo $scope.map
-  #     
-  # # watch poses change
-  # $scope.$watch 'poses', (n, o) ->
-  #   return unless n?
-  #   console.log "We have #{ $scope.poses.length } poses to add"
-  #   for pos in $scope.poses
-  #     L.marker [
-  #         pos.latitude,
-  #         pos.longitude,
-  #       ], { icon: greenIcon }
-  #       .bindPopup """
-  #           <strong>#{ pos.name }</strong> (#{ pos.id })<br />
-  #           <address>
-  #             address: #{ pos.address } <br />
-  #             telephone: #{ pos.telephone } <br />
-  #           </address>
-  #         """
-  #       .addTo $scope.map
-
