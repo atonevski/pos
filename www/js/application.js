@@ -26,15 +26,16 @@ angular.module('app', ['ionic', 'ngCordova', 'app.map']).config(function($stateP
   $ionicPlatform.ready(function() {
     var opts;
     opts = {
-      timeout: 8000,
-      enableHighAccuracy: false
+      timeout: 10000,
+      enableHighAccuracy: true
     };
-    return $cordovaGeolocation.getCurrentPosition(opts).then(function(pos) {
+    return navigator.geolocation.getCurrentPosition(function(pos) {
       $scope.position = pos;
       return console.log("Current pos: ", pos.coords.latitude, pos.coords.longitude);
     }, function(err) {
-      return console.log("Get current pos err: ", err);
-    });
+      console.log("Get current pos err: ", err);
+      return alert("Get current pos err: " + err.code);
+    }, opts);
   });
   $http.get('data/pos.json').then(function(response) {
     $scope.poses = response.data;
@@ -88,9 +89,10 @@ angular.module('app.map', []).controller('MapCurrentPosition', function($scope, 
     if ($scope.positionMarker != null) {
       $scope.map.removeLayer($scope.positionMarker);
     }
-    return $scope.positionMarker = L.marker([$scope.position.coords.latitude, $scope.position.coords.longitude], {
+    $scope.positionMarker = L.marker([$scope.position.coords.latitude, $scope.position.coords.longitude], {
       icon: redIcon
-    }).bindPopup("This is your current position").addTo($scope.map);
+    }).bindPopup("This is your current position<br />\n<strong>" + $scope.position.coords.latitude + ",\n" + $scope.position.coords.longitude + "</strong>").addTo($scope.map).openPopup();
+    return alert("New Position @ " + n.coords.latitude + " " + n.coords.longitude);
   });
   return $scope.$watch('poses', function(n, o) {
     var i, len, pos, ref, results;
@@ -121,6 +123,10 @@ angular.module('app.map', []).controller('MapCurrentPosition', function($scope, 
   $scope.map.on('locationerror', function(e) {
     return console.log("Leaflet loc err: ", e);
   });
+  $scope.map.on('locationfound', function(e) {
+    console.log('Location found: ', e);
+    return alert("Location found @: " + e.latitude + ", " + e.longitude);
+  });
   $scope.map.setView([41.997346199999996, 21.4279956], 15);
   $scope.map.locate({
     setView: true,
@@ -137,6 +143,9 @@ angular.module('app.map', []).controller('MapCurrentPosition', function($scope, 
   console.log('cities-map-id offset (top, left): ', offset.top, offset.left);
   console.log("WxH: " + window.innerWidth + "x" + window.innerHeight);
   el[0].style.height = window.innerHeight - offset.top + 'px';
+  $scope.map.on('click', function(e) {
+    return alert("You clicked @ " + e.latlng);
+  });
   angular.element($window).bind('resize', function() {
     console.log('Window size changed: ', $window.innerWidth + "x" + $window.innerHeight);
     return document.getElementById("cities-map-id").style.height = $window.innerHeight - offset.top + 'px';
@@ -150,7 +159,7 @@ angular.module('app.map', []).controller('MapCurrentPosition', function($scope, 
     }
     return $scope.positionMarker = L.marker([$scope.position.coords.latitude, $scope.position.coords.longitude], {
       icon: redIcon
-    }).bindPopup("This is your current position<br />").addTo($scope.map);
+    }).addTo($scope.map).bindPopup("This is your current position<br />\n<strong>" + $scope.position.coords.latitude + ",\n" + $scope.position.coords.longitude + "</strong>");
   });
   $scope.$watch('poses', function(n, o) {
     var i, len, pos, ref, results;
@@ -164,7 +173,7 @@ angular.module('app.map', []).controller('MapCurrentPosition', function($scope, 
       pos = ref[i];
       results.push(L.marker([pos.latitude, pos.longitude], {
         icon: greenIcon
-      }).bindPopup("<strong>" + pos.name + "</strong> (" + pos.id + ")<br />\n<address>\n  address: " + pos.address + " <br />\n  telephone: " + pos.telephone + " <br />\n</address>").addTo($scope.map));
+      }).addTo($scope.map).bindPopup("<strong>" + pos.name + "</strong> (" + pos.id + ")<br />\n<address>\n  address: " + pos.address + " <br />\n  telephone: " + pos.telephone + " <br />\n</address>"));
     }
     return results;
   });

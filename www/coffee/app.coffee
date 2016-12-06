@@ -46,15 +46,24 @@ angular.module('app', ['ionic', 'ngCordova', 'app.map'])
 
   $ionicPlatform.ready () ->
     opts =
-      timeout: 8000
-      enableHighAccuracy: no
-    $cordovaGeolocation
-      .getCurrentPosition opts
-      .then (pos) ->
-        $scope.position = pos
-        console.log "Current pos: ", pos.coords.latitude, pos.coords.longitude
-      , (err) ->
-        console.log "Get current pos err: ", err
+      timeout: 10000
+      enableHighAccuracy: yes
+    # $cordovaGeolocation
+    #   .getCurrentPosition opts
+    #   .then (pos) ->
+    #     $scope.position = pos
+    #     console.log "Current pos: ", pos.coords.latitude, pos.coords.longitude
+    #   , (err) ->
+    #     console.log "Get current pos err: ", err
+    #     alert "Get current pos err: #{ err.code }"
+
+    navigator.geolocation.getCurrentPosition (pos) ->
+      $scope.position = pos
+      console.log "Current pos: ", pos.coords.latitude, pos.coords.longitude
+    , (err) ->
+       console.log "Get current pos err: ", err
+       alert "Get current pos err: #{ err.code }"
+    , opts
     
     # wopts =
     #   timeout: 60000

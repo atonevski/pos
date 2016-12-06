@@ -54,7 +54,7 @@ angular.module 'app.map', []
         $scope.position.coords.longitude,
       ], 15
  
-  # watch pos change/ready
+  # watch position change/ready
   $scope.$watch 'position', (n, o) ->
     return unless n?
     if $scope.positionMarker?
@@ -63,8 +63,14 @@ angular.module 'app.map', []
         $scope.position.coords.latitude,
         $scope.position.coords.longitude,
       ], { icon: redIcon }
-      .bindPopup "This is your current position"
+      .bindPopup """
+          This is your current position<br />
+          <strong>#{ $scope.position.coords.latitude },
+          #{ $scope.position.coords.longitude }</strong>
+        """
       .addTo $scope.map
+      .openPopup()
+    alert "New Position @ #{ n.coords.latitude } #{ n.coords.longitude }"
 
   # watch poses change
   $scope.$watch 'poses', (n, o) ->
@@ -104,6 +110,9 @@ angular.module 'app.map', []
   .addTo $scope.map
 
   $scope.map.on 'locationerror', (e) -> console.log "Leaflet loc err: ", e
+  $scope.map.on 'locationfound', (e) ->
+    console.log 'Location found: ', e
+    alert "Location found @: #{ e.latitude }, #{ e.longitude }"
 
   $scope.map.setView [
     41.997346199999996, 21.4279956
@@ -129,6 +138,9 @@ angular.module 'app.map', []
   #   .style.height = window.innerHeight - offset.top + 'px'
   #
 
+  # erase this:
+  $scope.map.on 'click', (e) -> alert "You clicked @ " + e.latlng
+
   # detect window size change
   angular
     .element $window
@@ -142,7 +154,7 @@ angular.module 'app.map', []
       #   $scope.position.coords.longitude,
       # ], 15
 
-  # watch pos change/ready
+  # watch position change/ready
   $scope.$watch 'position', (n, o) ->
     return unless n?
     if $scope.positionMarker?
@@ -151,10 +163,12 @@ angular.module 'app.map', []
         $scope.position.coords.latitude,
         $scope.position.coords.longitude,
       ], { icon: redIcon }
+      .addTo $scope.map
       .bindPopup """
           This is your current position<br />
+          <strong>#{ $scope.position.coords.latitude },
+          #{ $scope.position.coords.longitude }</strong>
         """
-      .addTo $scope.map
 
   # watch poses change
   $scope.$watch 'poses', (n, o) ->
@@ -165,6 +179,7 @@ angular.module 'app.map', []
           pos.latitude,
           pos.longitude,
         ], { icon: greenIcon }
+        .addTo $scope.map
         .bindPopup """
             <strong>#{ pos.name }</strong> (#{ pos.id })<br />
             <address>
@@ -172,7 +187,6 @@ angular.module 'app.map', []
               telephone: #{ pos.telephone } <br />
             </address>
           """
-        .addTo $scope.map
 
 
   $scope.newSelection = (c) ->
