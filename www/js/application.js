@@ -3,6 +3,10 @@ angular.module('app', ['ionic', 'ngCordova', 'app.map']).config(function($stateP
     url: '/',
     templateUrl: 'views/map/current.html',
     controller: 'MapCurrentPosition'
+  }).state('search', {
+    url: '/search',
+    templateUrl: 'views/map/search.html',
+    controller: 'MapSearch'
   }).state('cities', {
     url: '/cities',
     templateUrl: 'views/map/cities.html',
@@ -29,13 +33,13 @@ angular.module('app', ['ionic', 'ngCordova', 'app.map']).config(function($stateP
       timeout: 10000,
       enableHighAccuracy: true
     };
-    return navigator.geolocation.getCurrentPosition(function(pos) {
+    return $cordovaGeolocation.getCurrentPosition(opts).then(function(pos) {
       $scope.position = pos;
       return console.log("Current pos: ", pos.coords.latitude, pos.coords.longitude);
     }, function(err) {
       console.log("Get current pos err: ", err);
       return alert("Get current pos err: " + err.code);
-    }, opts);
+    });
   });
   $http.get('data/pos.json').then(function(response) {
     $scope.poses = response.data;
@@ -89,10 +93,9 @@ angular.module('app.map', []).controller('MapCurrentPosition', function($scope, 
     if ($scope.positionMarker != null) {
       $scope.map.removeLayer($scope.positionMarker);
     }
-    $scope.positionMarker = L.marker([$scope.position.coords.latitude, $scope.position.coords.longitude], {
+    return $scope.positionMarker = L.marker([$scope.position.coords.latitude, $scope.position.coords.longitude], {
       icon: redIcon
     }).bindPopup("This is your current position<br />\n<strong>" + $scope.position.coords.latitude + ",\n" + $scope.position.coords.longitude + "</strong>").addTo($scope.map).openPopup();
-    return alert("New Position @ " + n.coords.latitude + " " + n.coords.longitude);
   });
   return $scope.$watch('poses', function(n, o) {
     var i, len, pos, ref, results;
@@ -112,10 +115,7 @@ angular.module('app.map', []).controller('MapCurrentPosition', function($scope, 
   });
 }).controller('MapCities', function($scope, $rootScope, $window, $ionicScrollDelegate, $ionicPosition) {
   var el, greenIcon, offset, redIcon;
-  console.log('Entered MapCities');
-  console.log("$scope.map? = " + ($scope.map != null));
   $scope.map = L.map('cities-map-id').fitWorld();
-  console.log("$scope.map? = " + ($scope.map != null));
   L.tileLayer('https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token=pk.eyJ1IjoiYXRvbmV2c2tpIiwiYSI6ImNpdzBndWY0azAwMXoyb3BqYXU2NDhoajEifQ.ESeiramSy2FmzU_XyIT6IQ', {
     maxZoom: 18,
     id: 'mapbox.streets'
@@ -124,8 +124,7 @@ angular.module('app.map', []).controller('MapCurrentPosition', function($scope, 
     return console.log("Leaflet loc err: ", e);
   });
   $scope.map.on('locationfound', function(e) {
-    console.log('Location found: ', e);
-    return alert("Location found @: " + e.latitude + ", " + e.longitude);
+    return console.log('Location found: ', e);
   });
   $scope.map.setView([41.997346199999996, 21.4279956], 15);
   $scope.map.locate({
@@ -181,4 +180,84 @@ angular.module('app.map', []).controller('MapCurrentPosition', function($scope, 
     console.log('New selection: ', c);
     return $scope.map.setView([c.latitude, c.longitude], c.zoomLevel);
   };
+}).controller('MapSearch', function($scope, $rootScope, $window, $ionicScrollDelegate, $ionicPosition) {
+  var el, greenIcon, offset, redIcon;
+  $scope.hideSearchResults = false;
+  $scope.selectTerminal = function(id) {
+    var i, len, pos, ref, results;
+    if (!id) {
+      return;
+    }
+    id = parseInt(id);
+    console.log("Terminal " + id + " selected");
+    $scope.hideSearchResults = true;
+    ref = $scope.poses;
+    results = [];
+    for (i = 0, len = ref.length; i < len; i++) {
+      pos = ref[i];
+      if (pos.id === id) {
+        results.push($scope.map.setView([pos.latitude, pos.longitude], 15));
+      }
+    }
+    return results;
+  };
+  $scope.map = L.map('search-map-id').fitWorld();
+  L.tileLayer('https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token=pk.eyJ1IjoiYXRvbmV2c2tpIiwiYSI6ImNpdzBndWY0azAwMXoyb3BqYXU2NDhoajEifQ.ESeiramSy2FmzU_XyIT6IQ', {
+    maxZoom: 18,
+    id: 'mapbox.streets'
+  }).addTo($scope.map);
+  $scope.map.on('locationerror', function(e) {
+    return console.log("Leaflet loc err: ", e);
+  });
+  $scope.map.on('locationfound', function(e) {
+    console.log('Location found: ', e);
+    return alert("Location found @: " + e.latitude + ", " + e.longitude);
+  });
+  $scope.map.setView([41.997346199999996, 21.4279956], 15);
+  redIcon = new L.Icon({
+    iconUrl: 'img/red-marker-icon.png'
+  });
+  greenIcon = new L.Icon({
+    iconUrl: 'img/green-marker-icon.png'
+  });
+  el = angular.element(document.querySelector('#search-map-id'));
+  offset = $ionicPosition.offset(el);
+  console.log('search-map-id offset (top, left): ', offset.top, offset.left);
+  console.log("WxH: " + window.innerWidth + "x" + window.innerHeight);
+  el[0].style.height = window.innerHeight - offset.top + 'px';
+  $scope.map.on('click', function(e) {
+    return alert("You clicked @ " + e.latlng);
+  });
+  angular.element($window).bind('resize', function() {
+    console.log('Window size changed: ', $window.innerWidth + "x" + $window.innerHeight);
+    return document.getElementById("search-map-id").style.height = $window.innerHeight - offset.top + 'px';
+  });
+  $scope.$watch('position', function(n, o) {
+    if (n == null) {
+      return;
+    }
+    if ($scope.positionMarker != null) {
+      $scope.map.removeLayer($scope.positionMarker);
+    }
+    return $scope.positionMarker = L.marker([$scope.position.coords.latitude, $scope.position.coords.longitude], {
+      icon: redIcon
+    }).addTo($scope.map).bindPopup("This is your current position<br />\n<strong>" + $scope.position.coords.latitude + ",\n" + $scope.position.coords.longitude + "</strong>");
+  });
+  return $scope.$watch('poses', function(n, o) {
+    var i, len, marker, pos, ref, results;
+    if (n == null) {
+      return;
+    }
+    console.log("We have " + $scope.poses.length + " poses to add");
+    ref = $scope.poses;
+    results = [];
+    for (i = 0, len = ref.length; i < len; i++) {
+      pos = ref[i];
+      marker = L.marker([pos.latitude, pos.longitude], {
+        icon: greenIcon
+      }).addTo($scope.map).bindPopup("<strong>" + pos.name + "</strong> (" + pos.id + ")<br />\n<address>\n  address: " + pos.address + " <br />\n  telephone: " + pos.telephone + " <br />\n</address>");
+      results.push(pos.marker = marker);
+    }
+    return results;
+  });
 });

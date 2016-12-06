@@ -16,6 +16,11 @@ angular.module('app', ['ionic', 'ngCordova', 'app.map'])
       templateUrl:  'views/map/current.html'
       controller:   'MapCurrentPosition'
     }
+    .state 'search', {
+      url:          '/search'
+      templateUrl:  'views/map/search.html'
+      controller:   'MapSearch'
+    }
     .state 'cities', {
       url:          '/cities'
       templateUrl:  'views/map/cities.html'
@@ -48,22 +53,22 @@ angular.module('app', ['ionic', 'ngCordova', 'app.map'])
     opts =
       timeout: 10000
       enableHighAccuracy: yes
-    # $cordovaGeolocation
-    #   .getCurrentPosition opts
-    #   .then (pos) ->
-    #     $scope.position = pos
-    #     console.log "Current pos: ", pos.coords.latitude, pos.coords.longitude
-    #   , (err) ->
-    #     console.log "Get current pos err: ", err
-    #     alert "Get current pos err: #{ err.code }"
+    $cordovaGeolocation
+      .getCurrentPosition opts
+      .then (pos) ->
+        $scope.position = pos
+        console.log "Current pos: ", pos.coords.latitude, pos.coords.longitude
+      , (err) ->
+        console.log "Get current pos err: ", err
+        alert "Get current pos err: #{ err.code }"
 
-    navigator.geolocation.getCurrentPosition (pos) ->
-      $scope.position = pos
-      console.log "Current pos: ", pos.coords.latitude, pos.coords.longitude
-    , (err) ->
-       console.log "Get current pos err: ", err
-       alert "Get current pos err: #{ err.code }"
-    , opts
+    # navigator.geolocation.getCurrentPosition (pos) ->
+    #   $scope.position = pos
+    #   console.log "Current pos: ", pos.coords.latitude, pos.coords.longitude
+    # , (err) ->
+    #    console.log "Get current pos err: ", err
+    #    alert "Get current pos err: #{ err.code }"
+    # , opts
     
     # wopts =
     #   timeout: 60000

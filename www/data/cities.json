@@ -1,7 +1,7 @@
 [
   { "city": "Скопје", "latitude": 41.9936497, "longitude": 21.4454632, "zoomLevel": 15 },
-  { "city": "Тетово", "latitude": 42.0060756, "longitude": 20.9633904, "zoomLevel": 15 },
-  { "city": "Гостивар", "latitude": 41.7985041, "longitude": 20.9035169, "zoomLevel": 15 },
+  { "city": "Тетово", "latitude": 42.0065649, "longitude": 20.9772646, "zoomLevel": 15 },
+  { "city": "Гостивар", "latitude": 41.7963281, "longitude": 20.9061551, "zoomLevel": 14.5 },
   { "city": "Дебар", "latitude": 41.521405, "longitude": 20.5187752, "zoomLevel": 15.75},
   { "city": "Куманово", "latitude": 42.1317747, "longitude": 21.7197825, "zoomLevel": 15 },
   { "city": "Крива Паланка", "latitude": 42.2037076, "longitude": 22.3291303, "zoomLevel": 16 },
