@@ -4,14 +4,15 @@
       <label class="item item-input">
         <i class="icon ion-search placeholder-icon"></i>
         <input type="search" placeholder="Search"
-               ng-model='searchString'>
+               ng-model='searchString'
+               ng-focus='searchResults.hide = false'>
                
       </label>
     </div>
 
-    <div class='list' ng-if='!hideSearchResults'>
-      <div class='item'
-           ng-repeat="p in poses | filter: 'searchString'">
+    <div class='list' ng-hide='searchResults.hide'>
+      <div class='item item-terminal'
+           ng-repeat="p in poses | filter: {name: searchString} | orderBy: 'id'">
         <div class='row row-no-padding'>
           <div class='col col-20' ng-click='selectTerminal({{ p.id }})'>{{ p.id }}</div>
           <div class='col col-50'>{{ p.name }}</div>

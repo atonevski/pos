@@ -182,25 +182,6 @@ angular.module('app.map', []).controller('MapCurrentPosition', function($scope, 
   };
 }).controller('MapSearch', function($scope, $rootScope, $window, $ionicScrollDelegate, $ionicPosition) {
   var el, greenIcon, offset, redIcon;
-  $scope.hideSearchResults = false;
-  $scope.selectTerminal = function(id) {
-    var i, len, pos, ref, results;
-    if (!id) {
-      return;
-    }
-    id = parseInt(id);
-    console.log("Terminal " + id + " selected");
-    $scope.hideSearchResults = true;
-    ref = $scope.poses;
-    results = [];
-    for (i = 0, len = ref.length; i < len; i++) {
-      pos = ref[i];
-      if (pos.id === id) {
-        results.push($scope.map.setView([pos.latitude, pos.longitude], 15));
-      }
-    }
-    return results;
-  };
   $scope.map = L.map('search-map-id').fitWorld();
   L.tileLayer('https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token=pk.eyJ1IjoiYXRvbmV2c2tpIiwiYSI6ImNpdzBndWY0azAwMXoyb3BqYXU2NDhoajEifQ.ESeiramSy2FmzU_XyIT6IQ', {
     maxZoom: 18,
@@ -213,6 +194,33 @@ angular.module('app.map', []).controller('MapCurrentPosition', function($scope, 
     console.log('Location found: ', e);
     return alert("Location found @: " + e.latitude + ", " + e.longitude);
   });
+  $scope.searchResults = {
+    hide: false,
+    pos: null
+  };
+  $scope.selectTerminal = function(id) {
+    var pos;
+    if (!id) {
+      return;
+    }
+    id = parseInt(id);
+    console.log("Terminal " + id + " selected");
+    $scope.searchResults.hide = true;
+    $scope.searchResults.pos = ((function() {
+      var i, len, ref, results;
+      ref = $scope.poses;
+      results = [];
+      for (i = 0, len = ref.length; i < len; i++) {
+        pos = ref[i];
+        if (pos.id === id) {
+          results.push(pos);
+        }
+      }
+      return results;
+    })())[0];
+    $scope.map.setView([$scope.searchResults.pos.latitude, $scope.searchResults.pos.longitude], 15);
+    return $scope.searchResults.pos.marker.openPopup();
+  };
   $scope.map.setView([41.997346199999996, 21.4279956], 15);
   redIcon = new L.Icon({
     iconUrl: 'img/red-marker-icon.png'

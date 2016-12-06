@@ -191,17 +191,6 @@ angular.module 'app.map', []
 .controller 'MapSearch', ($scope, $rootScope, $window
 , $ionicScrollDelegate, $ionicPosition) ->
 
-  $scope.hideSearchResults = no
-  $scope.selectTerminal = (id) ->
-    return unless id
-    id = parseInt id
-    console.log "Terminal #{ id } selected"
-    $scope.hideSearchResults = yes
-    for pos in $scope.poses when pos.id is id
-      $scope.map.setView [
-        pos.latitude, pos.longitude
-      ], 15
-    # $scope.$apply()
 
   $scope.map = L.map('search-map-id').fitWorld()
 
@@ -215,6 +204,22 @@ angular.module 'app.map', []
   $scope.map.on 'locationfound', (e) ->
     console.log 'Location found: ', e
     alert "Location found @: #{ e.latitude }, #{ e.longitude }"
+
+  $scope.searchResults =
+    hide: no
+    pos:  null
+  $scope.selectTerminal = (id) ->
+    return unless id
+    id = parseInt id
+    console.log "Terminal #{ id } selected"
+    $scope.searchResults.hide = yes
+    $scope.searchResults.pos = (pos for pos in $scope.poses when pos.id is id)[0]
+    $scope.map.setView [
+        $scope.searchResults.pos.latitude,
+        $scope.searchResults.pos.longitude
+    ], 15
+    $scope.searchResults.pos.marker.openPopup()
+
 
   $scope.map.setView [
     41.997346199999996, 21.4279956

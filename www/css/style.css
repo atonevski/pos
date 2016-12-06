@@ -11,3 +11,15 @@
   padding: : 0px!important;
   border: 0px;
 }
+
+.item-terminal {
+  padding-top: 2px;  
+  padding-bottom: 2px; 
+  margin: 0;
+
+  font-size: 14px;
+
+  border-top: none;
+  border-bottom: dotted;
+  border-width: 1px;
+}
