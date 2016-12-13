@@ -55,7 +55,7 @@ angular.module('app', ['ionic', 'ngCordova', 'app.map']).config(function($stateP
   });
 });
 
-angular.module('app.map', []).controller('MapCurrentPosition', function($scope, $rootScope, $window, $ionicScrollDelegate, $ionicPosition) {
+angular.module('app.map', []).controller('MapCurrentPosition', function($scope, $rootScope, $window, $ionicScrollDelegate, $ionicPosition, $cordovaVibration) {
   var el, greenIcon, offset, redIcon;
   $scope.map = L.map('mapid').fitWorld();
   L.tileLayer('https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token=pk.eyJ1IjoiYXRvbmV2c2tpIiwiYSI6ImNpdzBndWY0azAwMXoyb3BqYXU2NDhoajEifQ.ESeiramSy2FmzU_XyIT6IQ', {
@@ -81,6 +81,10 @@ angular.module('app.map', []).controller('MapCurrentPosition', function($scope, 
   console.log('mapid offset (top, left): ', offset.top, offset.left);
   console.log("WxH: " + window.innerWidth + "x" + window.innerHeight);
   el[0].style.height = window.innerHeight - offset.top + 'px';
+  $scope.map.on('click', function(e) {
+    alert("Покажа на позиција " + e.latlng);
+    return $cordovaVibration.vibrate(250);
+  });
   angular.element($window).bind('resize', function() {
     console.log('Window size changed: ', $window.innerWidth + "x" + $window.innerHeight);
     document.getElementById("mapid").style.height = $window.innerHeight - offset.top + 'px';
@@ -95,7 +99,7 @@ angular.module('app.map', []).controller('MapCurrentPosition', function($scope, 
     }
     return $scope.positionMarker = L.marker([$scope.position.coords.latitude, $scope.position.coords.longitude], {
       icon: redIcon
-    }).bindPopup("This is your current position<br />\n<strong>" + $scope.position.coords.latitude + ",\n" + $scope.position.coords.longitude + "</strong>").addTo($scope.map).openPopup();
+    }).bindPopup("Ова е твојата тековна позиција:<br />\n<strong>" + ($scope.position.coords.latitude.toFixed(6)) + ",\n" + ($scope.position.coords.longitude.toFixed(6)) + "</strong>").addTo($scope.map).openPopup();
   });
   return $scope.$watch('poses', function(n, o) {
     var i, len, pos, ref, results;
@@ -109,11 +113,11 @@ angular.module('app.map', []).controller('MapCurrentPosition', function($scope, 
       pos = ref[i];
       results.push(L.marker([pos.latitude, pos.longitude], {
         icon: greenIcon
-      }).bindPopup("<strong>" + pos.name + "</strong> (" + pos.id + ")<br />\n<address>\n  address: " + pos.address + " <br />\n  telephone: " + pos.telephone + " <br />\n</address>").addTo($scope.map));
+      }).bindPopup("<strong>" + pos.name + "</strong> (" + pos.id + ")<br />\n<hr />\n<address>\n  " + pos.address + " <br />\n  " + pos.city + " <br />\n  тел.: " + pos.telephone + " <br />\n</address>\n</address>").addTo($scope.map));
     }
     return results;
   });
-}).controller('MapCities', function($scope, $rootScope, $window, $ionicScrollDelegate, $ionicPosition) {
+}).controller('MapCities', function($scope, $rootScope, $window, $ionicScrollDelegate, $ionicPosition, $cordovaVibration) {
   var el, greenIcon, offset, redIcon;
   $scope.map = L.map('cities-map-id').fitWorld();
   L.tileLayer('https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token=pk.eyJ1IjoiYXRvbmV2c2tpIiwiYSI6ImNpdzBndWY0azAwMXoyb3BqYXU2NDhoajEifQ.ESeiramSy2FmzU_XyIT6IQ', {
@@ -143,7 +147,8 @@ angular.module('app.map', []).controller('MapCurrentPosition', function($scope, 
   console.log("WxH: " + window.innerWidth + "x" + window.innerHeight);
   el[0].style.height = window.innerHeight - offset.top + 'px';
   $scope.map.on('click', function(e) {
-    return alert("You clicked @ " + e.latlng);
+    alert("Покажа на позиција " + e.latlng);
+    return $cordovaVibration.vibrate(250);
   });
   angular.element($window).bind('resize', function() {
     console.log('Window size changed: ', $window.innerWidth + "x" + $window.innerHeight);
@@ -158,7 +163,7 @@ angular.module('app.map', []).controller('MapCurrentPosition', function($scope, 
     }
     return $scope.positionMarker = L.marker([$scope.position.coords.latitude, $scope.position.coords.longitude], {
       icon: redIcon
-    }).addTo($scope.map).bindPopup("This is your current position<br />\n<strong>" + $scope.position.coords.latitude + ",\n" + $scope.position.coords.longitude + "</strong>");
+    }).addTo($scope.map).bindPopup("Ова е твојата тековна позиција:<br />\n<strong>" + ($scope.position.coords.latitude.toFixed(6)) + ",\n" + ($scope.position.coords.longitude.toFixed(6)) + "</strong>");
   });
   $scope.$watch('poses', function(n, o) {
     var i, len, pos, ref, results;
@@ -172,7 +177,7 @@ angular.module('app.map', []).controller('MapCurrentPosition', function($scope, 
       pos = ref[i];
       results.push(L.marker([pos.latitude, pos.longitude], {
         icon: greenIcon
-      }).addTo($scope.map).bindPopup("<strong>" + pos.name + "</strong> (" + pos.id + ")<br />\n<address>\n  address: " + pos.address + " <br />\n  telephone: " + pos.telephone + " <br />\n</address>"));
+      }).addTo($scope.map).bindPopup("<strong>" + pos.name + "</strong> (" + pos.id + ")<br />\n<hr />\n<address>\n  " + pos.address + " <br />\n  " + pos.city + " <br />\n  тел.: " + pos.telephone + " <br />\n</address>"));
     }
     return results;
   });
@@ -180,7 +185,7 @@ angular.module('app.map', []).controller('MapCurrentPosition', function($scope, 
     console.log('New selection: ', c);
     return $scope.map.setView([c.latitude, c.longitude], c.zoomLevel);
   };
-}).controller('MapSearch', function($scope, $rootScope, $window, $ionicScrollDelegate, $ionicPosition) {
+}).controller('MapSearch', function($scope, $rootScope, $window, $ionicScrollDelegate, $ionicPosition, $cordovaVibration) {
   var el, greenIcon, offset, redIcon;
   $scope.map = L.map('search-map-id').fitWorld();
   L.tileLayer('https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token=pk.eyJ1IjoiYXRvbmV2c2tpIiwiYSI6ImNpdzBndWY0azAwMXoyb3BqYXU2NDhoajEifQ.ESeiramSy2FmzU_XyIT6IQ', {
@@ -234,7 +239,8 @@ angular.module('app.map', []).controller('MapCurrentPosition', function($scope, 
   console.log("WxH: " + window.innerWidth + "x" + window.innerHeight);
   el[0].style.height = window.innerHeight - offset.top + 'px';
   $scope.map.on('click', function(e) {
-    return alert("You clicked @ " + e.latlng);
+    alert("Покажа на позиција " + e.latlng);
+    return $cordovaVibration.vibrate(250);
   });
   angular.element($window).bind('resize', function() {
     console.log('Window size changed: ', $window.innerWidth + "x" + $window.innerHeight);
@@ -249,7 +255,7 @@ angular.module('app.map', []).controller('MapCurrentPosition', function($scope, 
     }
     return $scope.positionMarker = L.marker([$scope.position.coords.latitude, $scope.position.coords.longitude], {
       icon: redIcon
-    }).addTo($scope.map).bindPopup("This is your current position<br />\n<strong>" + $scope.position.coords.latitude + ",\n" + $scope.position.coords.longitude + "</strong>");
+    }).addTo($scope.map).bindPopup("Ова е твојата тековна позиција:<br />\n<strong>" + ($scope.position.coords.latitude.toFixed(6)) + ",\n" + ($scope.position.coords.longitude.toFixed(6)) + "</strong>");
   });
   return $scope.$watch('poses', function(n, o) {
     var i, len, marker, pos, ref, results;
@@ -263,7 +269,7 @@ angular.module('app.map', []).controller('MapCurrentPosition', function($scope, 
       pos = ref[i];
       marker = L.marker([pos.latitude, pos.longitude], {
         icon: greenIcon
-      }).addTo($scope.map).bindPopup("<strong>" + pos.name + "</strong> (" + pos.id + ")<br />\n<address>\n  address: " + pos.address + " <br />\n  telephone: " + pos.telephone + " <br />\n</address>");
+      }).addTo($scope.map).bindPopup("<strong>" + pos.name + "</strong> (" + pos.id + ")<br />\n<hr />\n<address>\n  " + pos.address + " <br />\n  " + pos.city + " <br />\n  тел.: " + pos.telephone + " <br />\n</address>");
       results.push(pos.marker = marker);
     }
     return results;

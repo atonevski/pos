@@ -6,7 +6,7 @@
 angular.module 'app.map', []
 
 .controller 'MapCurrentPosition', ($scope, $rootScope, $window
-, $ionicScrollDelegate, $ionicPosition) ->
+, $ionicScrollDelegate, $ionicPosition, $cordovaVibration) ->
   $scope.map = L.map('mapid').fitWorld()
   L.tileLayer 'https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token=pk.eyJ1IjoiYXRvbmV2c2tpIiwiYSI6ImNpdzBndWY0azAwMXoyb3BqYXU2NDhoajEifQ.ESeiramSy2FmzU_XyIT6IQ', {
     maxZoom: 18
@@ -40,6 +40,10 @@ angular.module 'app.map', []
   #   .style.height = window.innerHeight - offset.top + 'px'
   #
 
+  $scope.map.on 'click', (e) ->
+    alert "Покажа на позиција " + e.latlng
+    $cordovaVibration.vibrate 250
+
   # detect window size change
   angular
     .element $window
@@ -63,9 +67,9 @@ angular.module 'app.map', []
         $scope.position.coords.longitude,
       ], { icon: redIcon }
       .bindPopup """
-          This is your current position<br />
-          <strong>#{ $scope.position.coords.latitude },
-          #{ $scope.position.coords.longitude }</strong>
+          Ова е твојата тековна позиција:<br />
+          <strong>#{ $scope.position.coords.latitude.toFixed 6 },
+          #{ $scope.position.coords.longitude.toFixed 6 }</strong>
         """
       .addTo $scope.map
       .openPopup()
@@ -81,16 +85,19 @@ angular.module 'app.map', []
         ], { icon: greenIcon }
         .bindPopup """
             <strong>#{ pos.name }</strong> (#{ pos.id })<br />
+            <hr />
             <address>
-              address: #{ pos.address } <br />
-              telephone: #{ pos.telephone } <br />
+              #{ pos.address } <br />
+              #{ pos.city } <br />
+              тел.: #{ pos.telephone } <br />
+            </address>
             </address>
           """
         .addTo $scope.map
 
 
 .controller 'MapCities', ($scope, $rootScope, $window
-, $ionicScrollDelegate, $ionicPosition) ->
+, $ionicScrollDelegate, $ionicPosition, $cordovaVibration) ->
 
   $scope.map = L.map('cities-map-id').fitWorld()
 
@@ -129,8 +136,9 @@ angular.module 'app.map', []
   #   .style.height = window.innerHeight - offset.top + 'px'
   #
 
-  # erase this:
-  $scope.map.on 'click', (e) -> alert "You clicked @ " + e.latlng
+  $scope.map.on 'click', (e) ->
+    alert "Покажа на позиција " + e.latlng
+    $cordovaVibration.vibrate 250
 
   # detect window size change
   angular
@@ -156,9 +164,9 @@ angular.module 'app.map', []
       ], { icon: redIcon }
       .addTo $scope.map
       .bindPopup """
-          This is your current position<br />
-          <strong>#{ $scope.position.coords.latitude },
-          #{ $scope.position.coords.longitude }</strong>
+          Ова е твојата тековна позиција:<br />
+          <strong>#{ $scope.position.coords.latitude.toFixed 6 },
+          #{ $scope.position.coords.longitude.toFixed 6 }</strong>
         """
 
   # watch poses change
@@ -173,9 +181,11 @@ angular.module 'app.map', []
         .addTo $scope.map
         .bindPopup """
             <strong>#{ pos.name }</strong> (#{ pos.id })<br />
+            <hr />
             <address>
-              address: #{ pos.address } <br />
-              telephone: #{ pos.telephone } <br />
+              #{ pos.address } <br />
+              #{ pos.city } <br />
+              тел.: #{ pos.telephone } <br />
             </address>
           """
 
@@ -189,7 +199,7 @@ angular.module 'app.map', []
 
 
 .controller 'MapSearch', ($scope, $rootScope, $window
-, $ionicScrollDelegate, $ionicPosition) ->
+, $ionicScrollDelegate, $ionicPosition, $cordovaVibration) ->
 
 
   $scope.map = L.map('search-map-id').fitWorld()
@@ -245,8 +255,9 @@ angular.module 'app.map', []
   #   .style.height = window.innerHeight - offset.top + 'px'
   #
 
-  # erase this:
-  $scope.map.on 'click', (e) -> alert "You clicked @ " + e.latlng
+  $scope.map.on 'click', (e) ->
+    alert "Покажа на позиција " + e.latlng
+    $cordovaVibration.vibrate 250
 
   # detect window size change
   angular
@@ -268,9 +279,9 @@ angular.module 'app.map', []
       ], { icon: redIcon }
       .addTo $scope.map
       .bindPopup """
-          This is your current position<br />
-          <strong>#{ $scope.position.coords.latitude },
-          #{ $scope.position.coords.longitude }</strong>
+          Ова е твојата тековна позиција:<br />
+          <strong>#{ $scope.position.coords.latitude.toFixed 6 },
+          #{ $scope.position.coords.longitude.toFixed 6 }</strong>
         """
 
   # watch poses change
@@ -285,9 +296,11 @@ angular.module 'app.map', []
         .addTo $scope.map
         .bindPopup """
             <strong>#{ pos.name }</strong> (#{ pos.id })<br />
+            <hr />
             <address>
-              address: #{ pos.address } <br />
-              telephone: #{ pos.telephone } <br />
+              #{ pos.address } <br />
+              #{ pos.city } <br />
+              тел.: #{ pos.telephone } <br />
             </address>
           """
       pos.marker = marker
