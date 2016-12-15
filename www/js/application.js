@@ -11,6 +11,10 @@ angular.module('app', ['ionic', 'ngCordova', 'app.map']).config(function($stateP
     url: '/cities',
     templateUrl: 'views/map/cities.html',
     controller: 'MapCities'
+  }).state('about', {
+    url: '/about',
+    templateUrl: 'views/about/about.html',
+    controller: 'About'
   });
   return $urlRouterProvider.otherwise('/');
 }).run(function($ionicPlatform) {
@@ -23,7 +27,7 @@ angular.module('app', ['ionic', 'ngCordova', 'app.map']).config(function($stateP
       return StatusBar.styleDefault();
     }
   });
-}).controller('Main', function($scope, $cordovaGeolocation, $ionicPlatform, $ionicScrollDelegate, $ionicPosition, $window, $http, $ionicSideMenuDelegate) {
+}).controller('Main', function($scope, $cordovaGeolocation, $ionicPlatform, $ionicScrollDelegate, $ionicPosition, $window, $http, $ionicSideMenuDelegate, $cordovaAppVersion) {
   $scope.toggleLeft = function() {
     return $ionicSideMenuDelegate.toggleLeft();
   };
@@ -33,13 +37,21 @@ angular.module('app', ['ionic', 'ngCordova', 'app.map']).config(function($stateP
       timeout: 10000,
       enableHighAccuracy: true
     };
-    return $cordovaGeolocation.getCurrentPosition(opts).then(function(pos) {
+    $cordovaGeolocation.getCurrentPosition(opts).then(function(pos) {
       $scope.position = pos;
       return console.log("Current pos: ", pos.coords.latitude, pos.coords.longitude);
     }, function(err) {
       console.log("Get current pos err: ", err);
       return alert("Get current pos err: " + err.code);
     });
+    if (window.cordova) {
+      $cordovaAppVersion.getVersionNumber().then(function(ver) {
+        return $scope.appVersion = ver;
+      });
+      return $cordovaAppVersion.getAppName().then(function(name) {
+        return $scope.appName = name;
+      });
+    }
   });
   $http.get('data/pos.json').then(function(response) {
     $scope.poses = response.data;
@@ -53,6 +65,8 @@ angular.module('app', ['ionic', 'ngCordova', 'app.map']).config(function($stateP
   }, function(response) {
     return console.log("cities.json error: (" + response.status + ") " + response.data + " " + response.statusText);
   });
+}).controller('About', function($scope) {
+  return console.log($scope.appVersion);
 });
 
 angular.module('app.map', []).controller('MapCurrentPosition', function($scope, $rootScope, $window, $ionicScrollDelegate, $ionicPosition, $cordovaVibration) {

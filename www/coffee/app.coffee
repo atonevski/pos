@@ -26,6 +26,11 @@ angular.module('app', ['ionic', 'ngCordova', 'app.map'])
       templateUrl:  'views/map/cities.html'
       controller:   'MapCities'
     }
+    .state 'about', {
+      url:          '/about'
+      templateUrl:  'views/about/about.html'
+      controller:   'About'
+    }
 
   $urlRouterProvider.otherwise '/'
 
@@ -44,7 +49,8 @@ angular.module('app', ['ionic', 'ngCordova', 'app.map'])
       StatusBar.styleDefault()
 
 .controller 'Main', ($scope, $cordovaGeolocation, $ionicPlatform
-, $ionicScrollDelegate, $ionicPosition, $window, $http, $ionicSideMenuDelegate) ->
+, $ionicScrollDelegate, $ionicPosition, $window, $http
+, $ionicSideMenuDelegate, $cordovaAppVersion) ->
 
   # side menu
   $scope.toggleLeft = () -> $ionicSideMenuDelegate.toggleLeft()
@@ -61,6 +67,12 @@ angular.module('app', ['ionic', 'ngCordova', 'app.map'])
       , (err) ->
         console.log "Get current pos err: ", err
         alert "Get current pos err: #{ err.code }"
+
+    if window.cordova
+      $cordovaAppVersion.getVersionNumber().then (ver) ->
+        $scope.appVersion = ver
+      $cordovaAppVersion.getAppName().then (name) ->
+        $scope.appName = name
 
     # navigator.geolocation.getCurrentPosition (pos) ->
     #   $scope.position = pos
@@ -98,3 +110,7 @@ angular.module('app', ['ionic', 'ngCordova', 'app.map'])
     , (response) -> # error
       console.log "cities.json error: (#{ response.status }) #{ response.data } #{ response.statusText }"
 
+# About controller
+.controller 'About', ($scope) ->
+  # log app version number
+  console.log $scope.appVersion

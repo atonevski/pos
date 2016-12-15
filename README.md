@@ -8,3 +8,9 @@ This is rudimentary sample app to demonstrate:
  * Locate current position
  * City poses
 
+# TODO
+
+This is a list of things to do, iether remove bugs or add features
+ * Add about menu option
+ * Add апп versioning
+ * Add position updating
