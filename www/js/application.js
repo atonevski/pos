@@ -115,7 +115,7 @@ angular.module('app.map', []).controller('MapCurrentPosition', function($scope, 
       icon: redIcon
     }).bindPopup("Ова е твојата тековна позиција:<br />\n<strong>" + ($scope.position.coords.latitude.toFixed(6)) + ",\n" + ($scope.position.coords.longitude.toFixed(6)) + "</strong>").addTo($scope.map).openPopup();
   });
-  return $scope.$watch('poses', function(n, o) {
+  $scope.$watch('poses', function(n, o) {
     var i, len, pos, ref, results;
     if (n == null) {
       return;
@@ -130,6 +130,12 @@ angular.module('app.map', []).controller('MapCurrentPosition', function($scope, 
       }).bindPopup("<strong>" + pos.name + "</strong> (" + pos.id + ")<br />\n<hr />\n<address>\n  " + pos.address + " <br />\n  " + pos.city + " <br />\n  тел.: " + pos.telephone + " <br />\n</address>\n</address>").addTo($scope.map));
     }
     return results;
+  });
+  return $scope.$on('$ionicView.enter', function() {
+    if ($scope.position != null) {
+      $scope.map.setView([$scope.position.coords.latitude, $scope.position.coords.longitude], 15);
+      return $scope.positionMarker.openPopup();
+    }
   });
 }).controller('MapCities', function($scope, $rootScope, $window, $ionicScrollDelegate, $ionicPosition, $cordovaVibration) {
   var el, greenIcon, offset, redIcon;

@@ -1,3 +1,6 @@
+/* default font  */
+* { font-family: 'Open Sans'; }
+
 /* Empty. Add your own CSS if you like */
 .bar-green {
   background-color: palegreen!important;
@@ -22,4 +25,10 @@
   border-top: none;
   border-bottom: dotted;
   border-width: 1px;
+}
+
+.truncate {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }

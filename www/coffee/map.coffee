@@ -95,6 +95,16 @@ angular.module 'app.map', []
           """
         .addTo $scope.map
 
+  $scope.$on '$ionicView.enter', () ->
+    if $scope.position?
+      # center around current position
+      $scope.map.setView [
+        $scope.position.coords.latitude,
+        $scope.position.coords.longitude,
+      ], 15
+      # and popUp marker
+      $scope.positionMarker.openPopup()
+    
 
 .controller 'MapCities', ($scope, $rootScope, $window
 , $ionicScrollDelegate, $ionicPosition, $cordovaVibration) ->
