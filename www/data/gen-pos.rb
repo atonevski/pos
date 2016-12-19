@@ -34,7 +34,7 @@ qry =<<-EOS
       FROM
         sales AS s
       WHERE
-        s.date BETWEEN date('now', '-3 months') AND date('now', '-1 day')
+        s.date BETWEEN date('now', '-6 months') AND date('now', '-1 day')
       ORDER BY id
     )
     AND (ti.lat IS NOT NULL AND ti.lng IS NOT NULL)

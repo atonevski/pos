@@ -14,7 +14,7 @@ This is a list of things to do, iether remove bugs or add features
  * Add about menu option √
  * Add app version √
  * Add position updating (use timer and checkwatch if current position changed then update/trigger)
- * Center city maps and fix zoom
+ * Center city maps and fix zoom √
 
 # License
 
